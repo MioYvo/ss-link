@@ -12,5 +12,5 @@
 #### 使用方法
 
 ```
-python get_server.py -u userORemail -p password
+python get_server.py -h
 ```
