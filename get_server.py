@@ -3,7 +3,7 @@
 from __future__ import division
 import sys
 import argparse
-from multiprocessing import Pool, cpu_count
+from multiprocessing import cpu_count, dummy
 
 import requests
 import pyping
@@ -138,8 +138,9 @@ if __name__ == '__main__':
     _html = get_hosts(_login_rst)
     _host = parse_html(_html)
 
-    pool = Pool(cpu_count())
-    print "--> start {} processes\n".format(cpu_count())
+    # pool = Pool(cpu_count())
+    pool = dummy.Pool(cpu_count())
+    print "--> start {} threads\n".format(cpu_count())
     multiple_results = [pool.apply_async(ping_one, (_ip, args.ping_count)) for _ip in _host]
 
     _host_rst = _host.copy()
