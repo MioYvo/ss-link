@@ -3,10 +3,12 @@
 from __future__ import division
 import sys
 import argparse
+from multiprocessing import Pool, cpu_count
+
 import requests
+import pyping
 from lxml import etree
 from tqdm import tqdm
-import pyping
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -109,39 +111,56 @@ def parse_html(html):
             host_name = host_info_list[0]
             host_dict[host_addr] = {"load": host_load, "name": host_name}
 
-    # pprint(host_dict)
     for k, v in host_dict.iteritems():
         print "{:<17}".format(k), "--load: ", "{:<5}".format(v['load']), "--name:  ", v['name']
-    print "\n\n"
+    print "\n"
     print ">>>>>>>>>> start ping <<<<<<<<<<<<<"
     print "\n"
+    return host_dict
 
-    with tqdm(total=len(host_dict), ncols=100, smoothing=0.1, dynamic_ncols=True) as pbar:
-        # with tqdm_gui(total=len(host_dict)) as pbar:
-        for ip in host_dict:
-            pbar.write('---- ping {} ------'.format(ip))
-            r = pyping.ping(ip, count=10, udp=True)
-            host_dict[ip]['avg_rtt'] = r.avg_rtt
-            pbar.write('      {}'.format(r.avg_rtt))
-            pbar.update(1)
 
-    sorted_host = sorted(host_dict.items(), key=lambda t: t[1]['avg_rtt'], reverse=True)
-    print "\n\n\n"
-    for h in sorted_host:
-        print "==================\n"
-        print "ip: {}".format(h[0])
-        print "name: {}".format(h[1]['name'])
-        print "load: {}".format(h[1]['load'])
-        print "avg_rtt: {}".format(h[1]['avg_rtt'])
+def ping_one(ip, ping_count=None):
+    if not ping_count:
+        ping_count = 3
+    r = pyping.ping(ip, count=ping_count, udp=True)
+    return {"ip": ip, "avg_rtt": r.avg_rtt}
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--user", help="account(email)", )
     parser.add_argument("-p", "--password", help="password")
+    parser.add_argument("-pc", "--ping_count", help="ping count", type=int)
     args = parser.parse_args()
     if not (args.user and args.password):
         raise Exception("请提供账号密码")
     _login_rst = login(args.user, args.password)
     _html = get_hosts(_login_rst)
-    parse_html(_html)
+    _host = parse_html(_html)
+
+    pool = Pool(cpu_count())
+    print "--> start {} processes\n".format(cpu_count())
+    multiple_results = [pool.apply_async(ping_one, (_ip, args.ping_count)) for _ip in _host]
+
+    _host_rst = _host.copy()
+    with tqdm(total=len(_host), ncols=100, smoothing=0.1, dynamic_ncols=True) as pbar:
+        for res in multiple_results:
+            ping_rst = res.get()
+            _host_rst[ping_rst['ip']]['avg_rtt'] = float(ping_rst['avg_rtt']) if ping_rst['avg_rtt'] else "None"
+            pbar.update(1)
+
+    sorted_host = sorted(_host_rst.items(), key=lambda t: t[1]['avg_rtt'], reverse=True)
+    print "\n"
+    for h in sorted_host:
+        print "ip: {:<17} | load: {:<20} | avg_rtt: {:<20} | name: {} ".format(h[0], h[1]['load'],
+                                                                               str(h[1]['avg_rtt']), h[1]['name'])
+
+    h_fastest = "ip: {:<17} | load: {:<20} | avg_rtt: {:<20} | name: {} ".format(sorted_host[-1][0],
+                                                                                 sorted_host[-1][1]['load'],
+                                                                                 sorted_host[-1][1]['avg_rtt'],
+                                                                                 sorted_host[-1][1]['name'])
+
+    print "\n"
+    print "fastest host:\n"
+    print h_fastest
+    print "\n bye!"
