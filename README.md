@@ -9,6 +9,12 @@
 	* lxml
 	* pyping
 
+* 安装
+
+	```
+	pip install -r requirement.txt
+	```
+
 #### 使用方法
 
 
@@ -20,6 +26,8 @@ Or
 python get_server.py
 ```
 
-```
-python get_server.py -h # to see more help
-```
+* to see more help
+
+	```
+	python get_server.py -h 
+	```
