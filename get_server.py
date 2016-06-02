@@ -18,7 +18,8 @@ def login(user, password):
     user_info = {'email': user,
                  'password': md5(password),
                  'redirect': '/my'}
-    login_uri = 'https://www.ss-link.com/login'
+    login_uri = 'http://www.ss-link.com/login'
+
     login_rst = requests.post(login_uri, files=user_info)
     if login_rst.status_code != 200:
         raise Exception(login_rst.text)
@@ -125,17 +126,24 @@ def ping_one(ip, ping_count=None):
     r = pyping.ping(ip, count=ping_count, udp=True)
     return {"ip": ip, "avg_rtt": r.avg_rtt}
 
-
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--user", help="account(email)", )
     parser.add_argument("-p", "--password", help="password")
     parser.add_argument("-pc", "--ping_count", help="ping count", type=int)
     args = parser.parse_args()
     if not (args.user and args.password):
-        raise Exception("请提供账号密码")
-    _login_rst = login(args.user, args.password)
+        print("enter your information please")
+        user = raw_input("ss-link user: ")
+        password = raw_input("ss-link password: ")
+    else:
+        user, password = args.user, args.password
+
+    if not (user and password):
+        raise Exception("没有密码搞毛啊!")
+    _login_rst = login(user, password)
     _html = get_hosts(_login_rst)
+    # _html = get_hosts(None)
     _host = parse_html(_html)
 
     # pool = Pool(cpu_count())
@@ -165,3 +173,6 @@ if __name__ == '__main__':
     print "fastest host:\n"
     print h_fastest
     print "\n bye!"
+
+if __name__ == '__main__':
+    main()
