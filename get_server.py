@@ -126,11 +126,12 @@ def ping_one(ip, ping_count=None):
     r = pyping.ping(ip, count=ping_count, udp=True)
     return {"ip": ip, "avg_rtt": r.avg_rtt}
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--user", help="account(email)", )
     parser.add_argument("-p", "--password", help="password")
-    parser.add_argument("-pc", "--ping_count", help="ping count", type=int)
+    parser.add_argument("-c", "--ping count", help="ping count", type=int)
     args = parser.parse_args()
     if not (args.user and args.password):
         print("enter your information please")
