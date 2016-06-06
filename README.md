@@ -19,7 +19,7 @@
 
 
 ```
-python get_server.py -u user -p password -c 10
+sudo python get_server.py -s true
 
 Or
 
