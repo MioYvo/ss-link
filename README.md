@@ -19,7 +19,7 @@
 
 
 ```
-sudo python get_server.py -s true
+sudo python get_server.py -su
 
 Or
 
