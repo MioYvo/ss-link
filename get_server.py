@@ -105,7 +105,7 @@ def loc_from_ip_cn(ip):
     isp = tree.xpath('//*[@id="result"]/div/p[2]/code')[0]
     geo_ip = tree.xpath('//*[@id="result"]/div/p[3]')[0]
     server = tree.xpath('//*[@id="result"]/div/p[4]')[0]
-    return ip, geo_ip.text, isp, server.text
+    return ip, geo_ip.text, isp.text, server.text
 
 
 def main():
