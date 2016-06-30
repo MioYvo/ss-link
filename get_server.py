@@ -102,9 +102,9 @@ def loc_from_ip_cn(ip):
     url = "http://ip.cn/index.php"
     loc_res = requests.get(url, params={"ip": ip})
     tree = etree.HTML(loc_res.content)
-    isp = tree.xpath('//*[@id="result"]/div/p[1]/text()[2]')[0]
-    geo_ip = tree.xpath('//*[@id="result"]/div/p[2]')[0]
-    server = tree.xpath('//*[@id="result"]/div/p[3]')[0]
+    isp = tree.xpath('//*[@id="result"]/div/p[2]/code')[0]
+    geo_ip = tree.xpath('//*[@id="result"]/div/p[3]')[0]
+    server = tree.xpath('//*[@id="result"]/div/p[4]')[0]
     return ip, geo_ip.text, isp, server.text
 
 
@@ -167,3 +167,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # ping_one('45.35.71.119')
