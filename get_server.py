@@ -44,7 +44,7 @@ def md5(password):
 
 
 def get_hosts(login_rst):
-    url = "http://www.ss-link.com/my/hostings"
+    url = "http://www.ss-link.me/my/hostings"
     html = requests.get(url, cookies=login_rst.cookies).content
     return html
 
@@ -84,7 +84,7 @@ def ping_one(ip, ping_count=None, su=False):
 
 
 def get_all_hosts():
-    url = "https://www.ss-link.com/all"
+    url = "https://www.ss-link.me/all"
     res = requests.get(url)
     assert res.ok
     # for ip in res.content.splitlines():
